@@ -40,7 +40,7 @@ func anagram(s1, s2 string) bool {
 		m[s1[i]]++
 	}
 	for i := 0; i <= lenS2-1; i++ {
-		if m[s2[i]] != 1 {
+		if m[s2[i]] == 0 {
 			return false
 		}
 	}
