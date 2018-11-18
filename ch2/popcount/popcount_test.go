@@ -67,6 +67,12 @@ func BenchmarkPopCountByShifting(b *testing.B) {
 	}
 }
 
+func BenchmarkPopCount2(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		popcount.PopCount2(0x1234567890ABCDEF)
+	}
+}
+
 // Go 1.6, 2.67GHz Xeon
 // $ go test -cpu=4 -bench=. gopl.io/ch2/popcount
 // BenchmarkPopCount-4                  200000000         6.30 ns/op
