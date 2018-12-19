@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func eliminate_adjacents(strings []string) []string {
+func kill_adjacents(strings []string) []string {
 	murders := 0
 	for i := 0; i+murders < len(strings)-1; i++ {
 		for strings[i] == strings[i+1] {
@@ -22,11 +22,11 @@ func eliminate_adjacents(strings []string) []string {
 
 func main() {
 	r := []string{"hello", "world", ":)"}
-	fmt.Println(eliminate_adjacents(r))
+	fmt.Println(kill_adjacents(r))
 	s := []string{"world", "world", "world"}
-	fmt.Println(eliminate_adjacents(s))
+	fmt.Println(kill_adjacents(s))
 	t := []string{"hello", "world", "world", "and", "universe"}
-	fmt.Println(eliminate_adjacents(t))
+	fmt.Println(kill_adjacents(t))
 	u := []string{"hello", "hello", "world", "world", "and", "and", "universe", "universe"}
-	fmt.Println(eliminate_adjacents(u))
+	fmt.Println(kill_adjacents(u))
 }
