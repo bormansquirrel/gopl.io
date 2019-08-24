@@ -19,13 +19,13 @@ import (
 //!+
 
 const (
-	UnixMonth = 2592000
+	UnixMonth = 2678400
 	UnixYear  = 31536000
 )
 
 func main() {
 	unixTimeNow := time.Now().Unix()
-	ageCategories := make(map[string]*github.Issue)
+	ageCategories := make(map[string][]*github.Issue)
 
 	result, err := github.SearchIssues(os.Args[1:])
 	if err != nil {
@@ -33,47 +33,36 @@ func main() {
 	}
 	fmt.Printf("%d issues:\n", result.TotalCount)
 	for _, item := range result.Items {
-
 		unixTime := item.CreatedAt.Unix()
 		if unixTimeNow-unixTime < UnixMonth {
-			ageCategories["<month"] = item
+			ageCategories["<month"] = append(ageCategories["<month"], item)
 			continue
 		}
 		if unixTimeNow-unixTime < UnixYear {
-			ageCategories["<year"] = item
+			ageCategories["<year"] = append(ageCategories["<year"], item)
 			continue
 		}
 		if unixTimeNow-unixTime >= UnixYear {
-			ageCategories[">=year"] = item
+			ageCategories[">=year"] = append(ageCategories["<year"], item)
 			continue
 		}
 	}
-	for _, item := range result.Items {
+	fmt.Println("#### Less than a month")
+	for _, element := range ageCategories["<month"] {
 		fmt.Printf("#%-5d %9.9s %.55s\n",
-			item.Number, item.User.Login, item.Title)
+			element.Number, element.User.Login, element.Title)
 	}
-	for key, element := range ageCategories {
-		if key == "<month" {
-			fmt.Printf("#%-5d %9.9s %.55s\n",
-				element.Number, element.User.Login, element.Title)
+	fmt.Println("#### Less than a year")
+	for _, element := range ageCategories["<year"] {
+		fmt.Printf("#%-5d %9.9s %.55s\n",
+			element.Number, element.User.Login, element.Title)
 
-		}
 	}
-	fmt.Println("##################################")
-	for key, element := range ageCategories {
-		if key == "<year" {
-			fmt.Printf("#%-5d %9.9s %.55s\n",
-				element.Number, element.User.Login, element.Title)
+	fmt.Println("#### More than a year")
+	for _, element := range ageCategories[">=year"] {
+		fmt.Printf("#%-5d %9.9s %.55s\n",
+			element.Number, element.User.Login, element.Title)
 
-		}
-	}
-	fmt.Println("##################################")
-	for key, element := range ageCategories {
-		if key == ">=year" {
-			fmt.Printf("#%-5d %9.9s %.55s\n",
-				element.Number, element.User.Login, element.Title)
-
-		}
 	}
 }
 
