@@ -7,24 +7,20 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	//"strconv"
-	//"net/url"
-	//"os"
-	//"io"
-	//"time"
 )
 
 const (
 	BaseURL             = "https://api.github.com"
 	Owner               = "bormansquirrel"
 	Repo                = "devops-test"
-	PersonalAccessToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxx"
+	PersonalAccessToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 )
 
 type Issue struct {
-	Title  string `json:"title"`
-	Body   string `json:"body"`
+	Title  string `json:"title,omitempty"`
+	Body   string `json:"body,omitempty"`
 	Number int    `json:"number,omitempty"`
+	State  string `json:"state,omitempty"`
 }
 
 // GetIssue in GitHub issue tracker.
@@ -104,10 +100,87 @@ func CreateIssue(issue *Issue, owner string, repo string) (int, error) {
 	return respIssue.Number, nil
 }
 
+// UpdateIssue in GitHub issue tracker.
+func UpdateIssue(owner string, repo string, issueNumber int, issue *Issue) (*Issue, error) {
+	var respIssue Issue
+	u := fmt.Sprintf("%s/repos/%s/%s/issues/%d", BaseURL, owner, repo, issueNumber)
+
+	jsonStr, err := json.Marshal(issue)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", u, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "token "+PersonalAccessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
+	err1 := json.Unmarshal(body, &respIssue)
+	if err1 != nil {
+		return nil, err
+	}
+
+	return &respIssue, nil
+}
+
+// CloseIssue in GitHub issue tracker.
+func CloseIssue(owner string, repo string, issueNumber int) (*Issue, error) {
+	var respIssue Issue
+	u := fmt.Sprintf("%s/repos/%s/%s/issues/%d", BaseURL, owner, repo, issueNumber)
+
+	issue := &Issue{
+		State: "closed",
+	}
+
+	jsonStr, err := json.Marshal(issue)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", u, bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "token "+PersonalAccessToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("response Status:", resp.Status)
+	fmt.Println("response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))
+
+	err1 := json.Unmarshal(body, &respIssue)
+	if err1 != nil {
+		return nil, err
+	}
+
+	return &respIssue, nil
+}
+
 func main() {
 	issue := &Issue{
 		Title: "myissue6",
 		Body:  "mybody6",
+	}
+
+	updatedIssue := &Issue{
+		Title: "myissue42",
+		Body:  "mybody42",
 	}
 
 	//create an issue
@@ -125,6 +198,24 @@ func main() {
 		log.Fatalln(err1)
 	}
 	fmt.Println("########################")
-	fmt.Printf("Title: %s, Body: %s\n", issue.Title, issue.Body)
+	fmt.Printf("Title: %s, Body: %s, Status: %s\n", issue.Title, issue.Body, issue.State)
+	fmt.Println("########################")
+
+	//update an issue
+	issue, err2 := UpdateIssue(Owner, Repo, issueNumber, updatedIssue)
+	if err != nil {
+		log.Fatalln(err2)
+	}
+	fmt.Println("########################")
+	fmt.Printf("Title: %s, Body: %s, Status: %s\n", issue.Title, issue.Body, issue.State)
+	fmt.Println("########################")
+
+	//close an issue
+	issue, err3 := CloseIssue(Owner, Repo, issueNumber)
+	if err != nil {
+		log.Fatalln(err3)
+	}
+	fmt.Println("########################")
+	fmt.Printf("Title: %s, Body: %s, Status: %s\n", issue.Title, issue.Body, issue.State)
 	fmt.Println("########################")
 }
