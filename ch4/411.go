@@ -24,7 +24,7 @@ type Issue struct {
 }
 
 // GetIssue in GitHub issue tracker.
-func GetIssue(owner string, repo string, issueNumber int) (*Issue, error) {
+func GetIssue(owner, repo string, issueNumber int) (*Issue, error) {
 	u := fmt.Sprintf("%s/repos/%s/%s/issues/%d", BaseURL, owner, repo, issueNumber)
 
 	req, err := http.NewRequest("GET", u, nil)
@@ -57,7 +57,7 @@ func GetIssue(owner string, repo string, issueNumber int) (*Issue, error) {
 }
 
 // CreateIssue in GitHub issue tracker.
-func CreateIssue(issue *Issue, owner string, repo string) (int, error) {
+func CreateIssue(issue *Issue, owner, repo string) (int, error) {
 	var respIssue Issue
 	u := fmt.Sprintf("%s/repos/%s/%s/issues", BaseURL, owner, repo)
 
@@ -101,7 +101,7 @@ func CreateIssue(issue *Issue, owner string, repo string) (int, error) {
 }
 
 // UpdateIssue in GitHub issue tracker.
-func UpdateIssue(owner string, repo string, issueNumber int, issue *Issue) (*Issue, error) {
+func UpdateIssue(owner, repo string, issueNumber int, issue *Issue) (*Issue, error) {
 	var respIssue Issue
 	u := fmt.Sprintf("%s/repos/%s/%s/issues/%d", BaseURL, owner, repo, issueNumber)
 
@@ -135,7 +135,7 @@ func UpdateIssue(owner string, repo string, issueNumber int, issue *Issue) (*Iss
 }
 
 // CloseIssue in GitHub issue tracker.
-func CloseIssue(owner string, repo string, issueNumber int) (*Issue, error) {
+func CloseIssue(owner, repo string, issueNumber int) (*Issue, error) {
 	var respIssue Issue
 	u := fmt.Sprintf("%s/repos/%s/%s/issues/%d", BaseURL, owner, repo, issueNumber)
 
